@@ -30,7 +30,7 @@ namespace FarmVariants
 		private static void AssetRequested(object sender, AssetRequestedEventArgs ev)
 		{
 			if (ev.NameWithoutLocale.IsEquivalentTo(DATAPATH))
-				ev.Edit(AddPacks, AssetEditPriority.Early);
+				ev.LoadFrom(AddPacks, AssetLoadPriority.High);
 			else if (validPackMaps.ContainsAsset(ev.NameWithoutLocale))
 				ev.LoadFrom(() => GetPackMap(ev.NameWithoutLocale.ToString()), AssetLoadPriority.Medium);
 		}
@@ -39,14 +39,16 @@ namespace FarmVariants
 			var path = which[MAPPATH.Length..].Split('|', 3);
 			return packs[path[0]].ModContent.Load<Map>($"Maps/{path[1]}/{path[2]}.tmx");
 		}
-		private static void AddPacks(IAssetData asset)
+		private static Dictionary<string, Dictionary<string, string>> AddPacks()
 		{
-			var data = (Dictionary<string, Dictionary<string, string>>)asset.Data;
+			var data = new Dictionary<string, Dictionary<string, string>>();
+
+			// clone packVariants
 			foreach((var key, var val) in packVariants)
 				if (data.TryGetValue(key, out var dict))
 					dict.Concat(val);
 				else
-					data[key] = val;
+					data[key] = new(val);
 
 			// add empty dicts for known custom farms to help out CP
 			var farms = ModEntry.helper.GameContent.Load<List<ModFarmType>>("Data/AdditionalFarms");
@@ -55,6 +57,8 @@ namespace FarmVariants
 					data[farm.ID] = new();
 			if (Game1.whichModFarm is not null && !data.ContainsKey(Game1.whichModFarm.ID))
 				data[Game1.whichModFarm.ID] = new();
+
+			return data;
 		}
 		private static void ReloadAssets(object sender, AssetsInvalidatedEventArgs ev)
 		{
@@ -128,7 +132,7 @@ namespace FarmVariants
 			selector = "";
 
 			which = which < 0 ? Game1.whichFarm : which;
-			whichCustom ??= Game1.whichModFarm.ID;
+			whichCustom ??= Game1.whichModFarm?.ID;
 
 			if (which is < 0 or >= 8)
 			{

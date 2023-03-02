@@ -24,6 +24,9 @@ namespace FarmVariants
 			}
 			else if (!Game1.IsClient)
 			{
+				if (Game1.Date.TotalDays > 1) // Don't reroll existing saves
+					return existing;
+
 				if (Manager.TryGetRandomVariant(out outmap, out var id, type))
 				{
 					if (Game1.MasterPlayer is not null)
@@ -33,9 +36,6 @@ namespace FarmVariants
 					return outmap;
 				}
 				ModEntry.monitor.Log("No variants found for selected farm type, using default.", LogLevel.Debug);
-			} else
-			{
-				ModEntry.monitor.Log("Server reports no variant, using default.", LogLevel.Debug);
 			}
 			return existing;
 		}
