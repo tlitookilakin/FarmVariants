@@ -1,0 +1,10 @@
+﻿{
+  "Name": "FarmVariants",
+  "Author": "Tlitookilakin",
+  "Version": "1.0.0",
+  "Description": "Allows adding random variants to farm maps",
+  "UniqueID": "tlitookilakin.FarmVariants",
+  "EntryDll": "FarmVariants.dll",
+  "MinimumApiVersion": "3.13",
+  "UpdateKeys": [ "Nexus:" ]
+}
