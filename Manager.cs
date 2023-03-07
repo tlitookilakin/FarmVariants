@@ -14,7 +14,7 @@ namespace FarmVariants
 		internal static Dictionary<string, Dictionary<string, string>> packVariants = new();
 		internal static Dictionary<string, IContentPack> packs = new();
 		internal static List<string> validPackMaps = new();
-		private static readonly string[] idmap = { "Standard", "Riverlands", "Forest", "Hilltop", "Wilderness", "FourCorners", "Beach"};
+		private static readonly string[] idmap = { "Standard", "Riverland", "Forest", "Hilltop", "Wilderness", "FourCorners", "Beach"};
 		private static readonly string[] defaultMaps = {"Farm", "Farm_Fishing", "Farm_Foraging", "Farm_Mining", "Farm_Combat", "Farm_FourCorners", "Farm_Island"};
 		internal static string CurrentID = "Default";
 
