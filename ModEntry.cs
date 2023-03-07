@@ -3,8 +3,8 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace FarmVariants
@@ -25,7 +25,6 @@ namespace FarmVariants
 			ModEntry.helper = Helper;
 			harmony = new(ModManifest.UniqueID);
 			ModID = ModManifest.UniqueID;
-			i18n = Helper.Translation;
 
 			helper.Events.GameLoop.GameLaunched += OnGameLaunched;
 			helper.Events.GameLoop.SaveLoaded += OnWorldLoaded;
@@ -38,6 +37,8 @@ namespace FarmVariants
 			LoadContentPacks();
 			Manager.Init();
 			harmony.PatchAll();
+			if (helper.ModRegistry.IsLoaded("Pathoschild.ContentPatcher"))
+				helper.ModRegistry.GetApi<IContentPatcher>("Pathoschild.ContentPatcher").RegisterToken(ModManifest, "Variant", VariantToken);
 		}
 
 		private static void LoadContentPacks()
@@ -83,6 +84,12 @@ namespace FarmVariants
 					monitor.Log($"Could not find map variant '{variant}'!", LogLevel.Warn);
 			else
 				monitor.Log($"No map variant selected.");
+		}
+		private static IEnumerable<string> VariantToken()
+		{
+			if (!Context.IsWorldReady)
+				return null;
+			return new[] { Manager.TryGetSavedVariant(out var id) ? id : "Default" };
 		}
 	}
 }
