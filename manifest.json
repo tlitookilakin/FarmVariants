@@ -6,5 +6,5 @@
   "UniqueID": "tlitookilakin.FarmVariants",
   "EntryDll": "FarmVariants.dll",
   "MinimumApiVersion": "3.13",
-  "UpdateKeys": [ "Nexus:" ]
+  "UpdateKeys": [ "Nexus:15775", "GitHub:tlitookilakin/FarmVariants" ]
 }
