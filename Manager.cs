@@ -14,7 +14,8 @@ namespace FarmVariants
 		internal static Dictionary<string, Dictionary<string, string>> packVariants = new();
 		internal static Dictionary<string, IContentPack> packs = new();
 		internal static List<string> validPackMaps = new();
-		private static readonly string[] idmap = { "Standard", "Riverlands", "Forest", "Hilltop", "Wilderness", "FourCorners", "Beach", "Custom" };
+		private static readonly string[] idmap = { "Standard", "Riverlands", "Forest", "Hilltop", "Wilderness", "FourCorners", "Beach"};
+		private static readonly string[] defaultMaps = {"Farm", "Farm_Fishing", "Farm_Foraging", "Farm_Mining", "Farm_Combat", "Farm_FourCorners", "Farm_Island"};
 		internal static string CurrentID = "Default";
 
 		internal const string FLAG = "tlitoo.farmVariant.variant";
@@ -36,7 +37,7 @@ namespace FarmVariants
 		}
 		private static Map GetPackMap(string which)
 		{
-			var path = which[MAPPATH.Length..].Split('|', 3);
+			var path = which[MAPPATH.Length..].Split('>', 3);
 			return packs[path[0]].ModContent.Load<Map>($"Maps/{path[1]}/{path[2]}.tmx");
 		}
 		private static Dictionary<string, Dictionary<string, string>> AddPacks()
@@ -57,6 +58,11 @@ namespace FarmVariants
 					data[farm.ID] = new();
 			if (Game1.whichModFarm is not null && !data.ContainsKey(Game1.whichModFarm.ID))
 				data[Game1.whichModFarm.ID] = new();
+
+			// aaaand for vanilla types
+			foreach (var type in idmap)
+				if (!data.ContainsKey(type))
+					data[type] = new();
 
 			return data;
 		}
@@ -85,8 +91,14 @@ namespace FarmVariants
 		internal static bool TryGetVariant(out string map, string id, int which = -1, string whichCustom = null)
 		{
 			map = "";
-			
-			if(!TryGetSelector(out var selector, which, whichCustom))
+
+			if (id == "Default")
+			{
+				map = GetDefaultMap(which);
+				return true;
+			}
+
+			if (!TryGetSelector(out var selector, which, whichCustom))
 				return false;
 
 			registeredVariants ??= ModEntry.helper.GameContent.Load<Dictionary<string, Dictionary<string, string>>>(DATAPATH);
@@ -139,7 +151,7 @@ namespace FarmVariants
 				ModEntry.monitor.Log($"Unknown farm type index {which}.", LogLevel.Trace);
 				return false;
 			}
-			selector = idmap[which];
+			selector = "";
 			if (which == 7)
 			{
 				if (whichCustom is null)
@@ -153,8 +165,30 @@ namespace FarmVariants
 					return false;
 				}
 				selector = whichCustom;
+			} else
+			{
+				selector = idmap[which];
 			}
 			return true;
+		}
+		internal static void SetVariant(string id, string path = null)
+		{
+			CurrentID = id;
+			if (Game1.MasterPlayer is not null)
+				Game1.MasterPlayer.modData[FLAG] = id;
+			if (path is not null)
+			{
+				var farm = Game1.getFarm();
+				farm.mapPath.Value = path;
+				farm.reloadMap();
+			}
+			ModEntry.monitor.Log($"Set farm variant to '{id}'; path '{path}'.");
+		}
+		internal static string GetDefaultMap(int which = -1)
+		{
+			if (which < 0)
+				which = Game1.whichFarm;
+			return which < 7 ? defaultMaps[which] : Game1.whichModFarm?.MapName;
 		}
 	}
 }

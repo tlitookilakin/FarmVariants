@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Text;
 
 namespace FarmVariants
 {
@@ -41,6 +42,17 @@ namespace FarmVariants
 				if (asset.IsEquivalentTo(name))
 					return true;
 			return false;
+		}
+		internal static string Join(this IList<string> items, string separator)
+		{
+			var sb = new StringBuilder();
+			for (int i = 0; i < items.Count; i++)
+			{
+				sb.Append(items[i]);
+				if (i < items.Count - 1)
+					sb.Append(separator);
+			}
+			return sb.ToString();
 		}
 	}
 }
