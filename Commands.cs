@@ -98,7 +98,13 @@ namespace FarmVariants
 				return "No maps to reload! World is not loaded.";
 
 			if (Manager.CurrentID != "Default")
-				Game1.getFarm()?.reloadMap();
+			{
+				var farm = Game1.getFarm();
+				if (farm is not null) {
+					ModEntry.helper.GameContent.InvalidateCache(farm.mapPath.Value);
+					farm.reloadMap();
+				}
+			}
 
 			return "Content pack reloaded";
 		}
